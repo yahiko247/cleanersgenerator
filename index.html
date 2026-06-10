@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duty Cleaners Schedule Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            
+            --brand-color: #4f46e5;
+            --brand-hover: #4338ca;
+            
+            --team-1: #0ea5e9;
+            --team-2: #10b981;
+            --team-3: #f59e0b;
+            
+            --weekend-bg: #f1f5f9;
+            --weekend-text: #94a3b8;
+            
+            --holiday-bg: #fef2f2;
+            --holiday-text: #991b1b;
+            --holiday-border: #fee2e2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            padding: 20px 12px; /* Adaptive base wrapper */
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        /* Responsive Header */
+        header {
+            margin-bottom: 24px;
+        }
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #1e293b;
+        }
+        header p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        /* RESPONSIVE LAYOUT SYSTEM: Desktop Multi-Column Default */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            font-family: inherit;
+            font-size: 14px;
+            padding: 10px 12px;
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--brand-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--brand-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--brand-hover);
+        }
+
+        .team-list, .todo-list {
+            list-style: none;
+            font-size: 13px;
+        }
+        .team-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .team-list li:last-child { border: none; }
+        
+        .todo-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 10px;
+            color: #334155;
+        }
+        .todo-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--brand-color);
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0; /* Prevents flex/grid data blowouts on mobile browsers */
+        }
+
+        .table-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .table-header-row h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        /* Horizontal Scroll Preventer wrapper for Mobile Screen widths */
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow-x: auto; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 450px; /* Guarantees data remains readable on tiny portrait windows */
+        }
+
+        th {
+            background-color: #f8fafc;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-team1 { background-color: #f0f9ff; color: var(--team-1); }
+        .badge-team2 { background-color: #ecfdf5; color: var(--team-2); }
+        .badge-team3 { background-color: #fffbeb; color: var(--team-3); }
+        
+        .weekend-row { background-color: var(--weekend-bg); }
+        .weekend-row td { color: var(--weekend-text); }
+
+        .holiday-row { background-color: var(--holiday-bg); }
+        .holiday-tag { color: var(--holiday-text); font-weight: 600; font-size: 11px;}
+        .holiday-name {
+            font-size: 11px;
+            color: #b91c1c;
+            margin-left: 6px;
+            font-weight: 400;
+            display: inline-block;
+        }
+
+        /* MEDIA QUERIES FOR SMALL DEVICES (Tablets & Phones) */
+        @media (max-width: 768px) {
+            body {
+                padding: 16px 8px;
+            }
+            .app-layout {
+                grid-template-columns: 1fr; /* Stacks configurations directly above the calendar */
+                gap: 20px;
+            }
+            header h1 {
+                font-size: 20px;
+            }
+            .table-header-row h2 {
+                font-size: 18px;
+            }
+            td, th {
+                padding: 10px 12px; /* Tightens density to prevent text truncation on phones */
+            }
+            .holiday-name {
+                display: block; /* Drops long text names nicely to a clean new line under HOLIDAY badge */
+                margin-left: 0;
+                margin-top: 2px;
+            }
+        }
+
+        /* PRINT RENDERING CONSTANTS */
+        @media print {
+            body { background: white; padding: 0; color: #000; }
+            .sidebar, button, header p { display: none !important; }
+            .app-layout { display: block; }
+            .table-container { border: 1px solid #000; box-shadow: none; border-radius: 0; overflow: visible;}
+            table { min-width: 100%; }
+            th, td { padding: 8px 12px; border-bottom: 1px solid #000 !important; }
+            th { background-color: #f5f5f5 !important; color: #000; }
+            .weekend-row { background-color: #eaeaea !important; color: #555 !important; }
+            .holiday-row { background-color: #fee2e2 !important; color: #000 !important; }
+            .badge { padding: 0; background: transparent !important; font-size: 13px; font-weight: bold;}
+            .badge-team1 { color: #000 !important; }
+            .badge-team2 { color: #000 !important; }
+            .badge-team3 { color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Duty Cleaners Schedule</h1>
+        <p>Automated deployment schedule with Philippine national & local holidays integration.</p>
+    </header>
+    
+    <div class="app-layout">
+        <div class="sidebar">
+            <div class="card">
+                <h3>Configurations</h3>
+                <div class="form-group">
+                    <label for="monthSelect">Target Month & Year</label>
+                    <input type="month" id="monthSelect" value="2026-08">
+                </div>
+                <div class="form-group">
+                    <label for="startTeam">Starting Team Rotation</label>
+                    <select id="startTeam">
+                        <option value="1">Team 1 (Ailyn)</option>
+                        <option value="2">Team 2 (Johnriel)</option>
+                        <option value="3">Team 3 (Ruth)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="customHolidays">Other Custom Holidays</label>
+                    <textarea id="customHolidays" rows="2" placeholder="YYYY-MM-DD (One per line)"></textarea>
+                </div>
+                <button onclick="generateSchedule()">Update Schedule</button>
+            </div>
+
+            <div class="card">
+                <h3>Team Structures</h3>
+                <ul class="team-list">
+                    <li><strong style="color: var(--team-1)">Team 1:</strong> Ailyn, Janilou, Vince</li>
+                    <li><strong style="color: var(--team-2)">Team 2:</strong> Johnriel, Neiljun, Princess</li>
+                    <li><strong style="color: var(--team-3)">Team 3:</strong> Ruth, Charito, Mary Jane, Mere Joy</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>To-Do Mandates</h3>
+                <ul class="todo-list">
+                    <li>Sweep and mop the entire office floor.</li>
+                    <li>Clean the kitchen pantry & comfort rooms.</li>
+                    <li>Wipe and arrange Accountant's table.</li>
+                    <li>Clean transparent glass windows.</li>
+                    <li>Empty all waste bins and dispose properly.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="table-header-row">
+                <h2 id="scheduleTitle">August 2026</h2>
+                <button style="width: auto; padding: 8px 14px; font-size: 12px; background: #334155;" onclick="window.print()">Print Report</button>
+            </div>
+            
+            <div class="table-container">
+                <table id="scheduleTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Day Name</th>
+                            <th style="width: 15%;">Date No.</th>
+                            <th style="width: 60%;">Assigned Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getHolyWeekDates(year) {
+    const f = Math.floor,
+          G = year % 19,
+          C = Math.floor(year / 100),
+          H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30,
+          I = H - f(H / 28) * (1 - f(H / 28) * f(29 / (H + 1)) * f((21 - G) / 11)),
+          J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+          L = I - J,
+          month = 3 + f((L + 40) / 44),
+          day = L + 28 - 31 * f(month / 4);
+
+    const easter = new Date(year, month - 1, day);
+    const maundyThursday = new Date(easter); maundyThursday.setDate(easter.getDate() - 3);
+    const goodFriday = new Date(easter); goodFriday.setDate(easter.getDate() - 2);
+
+    return { m: formatDateString(maundyThursday), f: formatDateString(goodFriday) };
+}
+
+function getLastMondayOfAugust(year) {
+    let lastDay = new Date(year, 7, 31);
+    while (lastDay.getDay() !== 1) { lastDay.setDate(lastDay.getDate() - 1); }
+    return formatDateString(lastDay);
+}
+
+function formatDateString(dateObj) {
+    return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+}
+
+function generateSchedule() {
+    const monthVal = document.getElementById('monthSelect').value;
+    if (!monthVal) return;
+
+    const [year, month] = monthVal.split('-').map(Number);
+    const startTeam = parseInt(document.getElementById('startTeam').value);
+    const padMonth = String(month).padStart(2, '0');
+
+    const hw = getHolyWeekDates(year);
+    const lmAug = getLastMondayOfAugust(year);
+
+    const phHolidays = {
+        [`${year}-01-01`]: "New Year's Day",
+        [hw.m]: "Maundy Thursday",
+        [hw.f]: "Good Friday",
+        [`${year}-04-09`]: "Araw ng Kagitingan",
+        [`${year}-05-01`]: "Labor Day",
+        [`${year}-06-12`]: "Independence Day",
+        [`${year}-08-21`]: "Ninoy Aquino Day",
+        [lmAug]: "National Heroes Day",
+        [`${year}-09-01`]: "Bukidnon Charter Day",
+        [`${year}-11-01`]: "All Saints' Day",
+        [`${year}-11-02`]: "All Souls' Day",
+        [`${year}-11-30`]: "Bonifacio Day",
+        [`${year}-12-08`]: "Feast of the Immaculate Conception",
+        [`${year}-12-25`]: "Christmas Day",
+        [`${year}-12-30`]: "Rizal Day"
+    };
+
+    const customText = document.getElementById('customHolidays').value;
+    const customLines = customText.split('\n').map(d => d.trim()).filter(d => d);
+
+    const dummyDate = new Date(year, month - 1, 1);
+    document.getElementById('scheduleTitle').innerText = `${dummyDate.toLocaleString('default', { month: 'long' })} ${year}`;
+
+    const tbody = document.querySelector('#scheduleTable tbody');
+    tbody.innerHTML = '';
+
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    let currentTeamIndex = startTeam;
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const currentDate = new Date(year, month - 1, day);
+        const dayOfWeekIdx = currentDate.getDay();
+        const dateString = `${year}-${padMonth}-${String(day).padStart(2, '0')}`;
+
+        const isWeekend = (dayOfWeekIdx === 0 || dayOfWeekIdx === 6);
+        const holidayName = phHolidays[dateString];
+        const isCustomHoliday = customLines.some(line => line.startsWith(dateString));
+
+        let displayContent = '';
+        let rowClass = '';
+
+        if (isWeekend) {
+            displayContent = `<span style="font-size:12px; color:#94a3b8;">Weekend Rest</span>`;
+            rowClass = 'weekend-row';
+        } else if (holidayName || isCustomHoliday) {
+            displayContent = `<span class="holiday-tag">HOLIDAY</span><span class="holiday-name">(${holidayName || 'Suspended'})</span>`;
+            rowClass = 'holiday-row';
+        } else {
+            displayContent = `<span class="badge badge-team${currentTeamIndex}">Team ${currentTeamIndex} Assigned</span>`;
+            currentTeamIndex = (currentTeamIndex % 3) + 1;
+        }
+
+        const row = document.createElement('tr');
+        if (rowClass) row.className = rowClass;
+
+        row.innerHTML = `
+            <td><span style="font-weight: 500;">${daysOfWeek[dayOfWeekIdx]}</span></td>
+            <td><span style="color: var(--text-muted); font-weight: 500;">${day}</span></td>
+            <td>${displayContent}</td>
+        `;
+        tbody.appendChild(row);
+    }
+}
+
+window.onload = generateSchedule;
+</script>
+
+</body>
+</html>
